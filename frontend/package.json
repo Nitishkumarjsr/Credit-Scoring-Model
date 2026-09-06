@@ -1,0 +1,12 @@
+{
+  "name": "credipulse-ai-frontend",
+  "version": "1.0.0",
+  "description": "CrediPulse AI - Credit Scoring & Loan Risk Assessment Frontend",
+  "scripts": {
+    "dev": "npx serve . -p 3000",
+    "start": "npx serve . -p 3000"
+  },
+  "keywords": ["credit-scoring", "machine-learning", "vercel", "fintech"],
+  "author": "CodeAlpha",
+  "license": "MIT"
+}

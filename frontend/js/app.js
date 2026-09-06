@@ -173,7 +173,7 @@ function initCloudSettingsModal() {
             const current = window.API_CONFIG.getBaseUrl();
             window.API_CONFIG.setBaseUrl(inputUrl.value.trim());
             const h = await window.API_CONFIG.checkHealth();
-            window.API_CONFIG.setBaseUrl(current);
+            window.API_CONFIG.setBaseUrl(current); // restore until saved
 
             testBtn.disabled = false;
             testBtn.textContent = "Test Ping";
@@ -237,6 +237,7 @@ function initSliders() {
         }
     });
 
+    // Auto-update interest rate suggestion on loan grade change
     const gradeSelect = document.getElementById("inp-loan-grade");
     const intRateInput = document.getElementById("inp-int-rate");
     const intRateDisplay = document.getElementById("val-int-rate");
@@ -376,6 +377,7 @@ async function runPrediction() {
         const data = await res.json();
         if (data.status === "success") {
             renderPredictionResults(data.result);
+            // Refresh audit history tab if active
             loadAuditHistory();
         }
     } catch (e) {
@@ -388,6 +390,7 @@ async function runPrediction() {
 function renderPredictionResults(result) {
     const { consensus, models, risk_drivers, persisted_to } = result;
 
+    // Consensus FICO Gauge & Verdict
     const ficoEl = document.getElementById("gauge-fico-score");
     const gaugeBar = document.getElementById("gauge-bar");
     const verdictBadge = document.getElementById("diagnosis-badge");
@@ -412,6 +415,7 @@ function renderPredictionResults(result) {
         }
     }
 
+    // FICO Gauge Animation: Circumference = 2 * PI * 68 = ~427
     const maxScore = 850;
     const minScore = 300;
     const scorePct = Math.max(0, Math.min(1, (consensus.credit_score - minScore) / (maxScore - minScore)));
@@ -438,6 +442,7 @@ function renderPredictionResults(result) {
         riskTag.className = `risk-level-tag tag-${consensus.risk_badge}`;
     }
 
+    // Probability Track
     const valApprove = document.getElementById("val-approve-prob");
     const valDefault = document.getElementById("val-default-prob");
     const barApprove = document.getElementById("bar-approve");
@@ -448,6 +453,7 @@ function renderPredictionResults(result) {
     if (barApprove) barApprove.style.width = `${consensus.avg_approve_prob}%`;
     if (barDefault) barDefault.style.width = `${consensus.avg_default_prob}%`;
 
+    // Tri-Model Subcards
     const updateModelCard = (prefix, modelData) => {
         const badge = document.getElementById(`badge-${prefix}`);
         const prob = document.getElementById(`prob-${prefix}`);
@@ -470,6 +476,7 @@ function renderPredictionResults(result) {
     updateModelCard("rf", models.RandomForest);
     updateModelCard("lr", models.LogisticRegression);
 
+    // Risk Drivers List
     const riskContainer = document.getElementById("risk-drivers-container");
     if (riskContainer) {
         riskContainer.innerHTML = "";
@@ -508,6 +515,7 @@ async function loadBenchmarks() {
             renderMetricsTable(data.metrics);
             renderFeatureImportanceChart(data.feature_importances);
 
+            // Update Hero KPIs
             const gb = data.metrics.GradientBoosting;
             if (gb) {
                 const kpiAcc = document.getElementById("kpi-accuracy");
@@ -611,6 +619,7 @@ function renderRocChart(rocData) {
         };
     });
 
+    // Add Chance Diagonal
     datasets.push({
         label: "Chance (AUC: 0.50)",
         data: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
