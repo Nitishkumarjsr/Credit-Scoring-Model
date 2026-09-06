@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initBatchProcessing();
     initApiTabs();
     initCloudHealthMonitor();
-    initCloudSettingsModal();
     initHistoryTab();
 
     // Run initial prediction on default values
@@ -52,31 +51,23 @@ async function initCloudHealthMonitor() {
 }
 
 function updateCloudStatusBadge(health) {
-    const renderBadge = document.getElementById("pill-render-status");
+    const engineBadge = document.getElementById("pill-render-status");
     const supabaseBadge = document.getElementById("pill-supabase-status");
-    const backendUrlLabel = document.getElementById("active-backend-url-label");
-
-    if (backendUrlLabel) {
-        const currentUrl = window.API_CONFIG.getBaseUrl() || "Local / Relative";
-        backendUrlLabel.textContent = currentUrl.replace(/^https?:\/\//, "");
-    }
 
     if (health.status === "checking") {
-        if (renderBadge) {
-            renderBadge.innerHTML = '<span class="pulse-dot pulse-amber"></span><span>Render: Connecting...</span>';
-            renderBadge.className = "status-pill pill-warning";
+        if (engineBadge) {
+            engineBadge.innerHTML = '<span class="pulse-dot pulse-amber"></span><span>AI Engine: Connecting...</span>';
+            engineBadge.className = "status-pill pill-warning";
         }
         return;
     }
 
     if (health.online && health.data) {
         state.isRenderWaking = false;
-        const banner = document.getElementById("render-warmup-banner");
-        if (banner) banner.style.display = "none";
 
-        if (renderBadge) {
-            renderBadge.innerHTML = `<span class="pulse-dot"></span><span>Render API: <strong>Online (${health.latency}ms)</strong></span>`;
-            renderBadge.className = "status-pill pill-success";
+        if (engineBadge) {
+            engineBadge.innerHTML = `<span class="pulse-dot"></span><span>AI Engine: <strong>Online (${health.latency}ms)</strong></span>`;
+            engineBadge.className = "status-pill pill-success";
         }
 
         const dbInfo = health.data.database || {};
@@ -94,100 +85,14 @@ function updateCloudStatusBadge(health) {
             }
         }
     } else {
-        if (renderBadge) {
-            renderBadge.innerHTML = `<span class="pulse-dot pulse-amber"></span><span>Render: <strong>Offline / Waking (${health.latency}ms)</strong></span>`;
-            renderBadge.className = "status-pill pill-warning";
+        if (engineBadge) {
+            engineBadge.innerHTML = `<span class="pulse-dot pulse-amber"></span><span>AI Engine: <strong>Waking Up (${health.latency}ms)</strong></span>`;
+            engineBadge.className = "status-pill pill-warning";
         }
         if (supabaseBadge) {
-            supabaseBadge.innerHTML = `<span class="pulse-dot pulse-amber"></span><span>Supabase: <strong>Waiting for API</strong></span>`;
+            supabaseBadge.innerHTML = `<span class="pulse-dot pulse-amber"></span><span>Supabase: <strong>Connecting</strong></span>`;
             supabaseBadge.className = "status-pill pill-neutral";
         }
-    }
-}
-
-// ==========================================
-// Cloud Settings Modal
-// ==========================================
-function initCloudSettingsModal() {
-    const openBtn = document.getElementById("btn-open-cloud-settings");
-    const modal = document.getElementById("cloud-settings-modal");
-    const closeBtn = document.getElementById("btn-close-modal");
-    const saveBtn = document.getElementById("btn-save-api-url");
-    const resetBtn = document.getElementById("btn-reset-api-url");
-    const testBtn = document.getElementById("btn-test-connection");
-    const inputUrl = document.getElementById("input-backend-url");
-    const testResult = document.getElementById("connection-test-result");
-
-    if (openBtn && modal) {
-        openBtn.addEventListener("click", () => {
-            if (inputUrl) {
-                inputUrl.value = window.API_CONFIG.getBaseUrl() || window.API_CONFIG.DEFAULT_RENDER_BACKEND;
-            }
-            if (testResult) testResult.style.display = "none";
-            modal.style.display = "flex";
-        });
-    }
-
-    const closeModal = () => {
-        if (modal) modal.style.display = "none";
-    };
-
-    if (closeBtn) closeBtn.addEventListener("click", closeModal);
-    if (modal) {
-        modal.addEventListener("click", (e) => {
-            if (e.target === modal) closeModal();
-        });
-    }
-
-    if (saveBtn && inputUrl) {
-        saveBtn.addEventListener("click", async () => {
-            const newUrl = inputUrl.value.trim();
-            window.API_CONFIG.setBaseUrl(newUrl);
-            closeModal();
-            updateCloudStatusBadge({ status: "checking" });
-            const h = await window.API_CONFIG.checkHealth();
-            updateCloudStatusBadge(h);
-            loadBenchmarks();
-            loadDatasetRecords(0);
-            loadAuditHistory();
-            runPrediction();
-        });
-    }
-
-    if (resetBtn && inputUrl) {
-        resetBtn.addEventListener("click", () => {
-            inputUrl.value = window.API_CONFIG.DEFAULT_RENDER_BACKEND;
-        });
-    }
-
-    if (testBtn && inputUrl) {
-        testBtn.addEventListener("click", async () => {
-            testBtn.disabled = true;
-            testBtn.textContent = "Testing...";
-            if (testResult) {
-                testResult.style.display = "block";
-                testResult.className = "test-status-box testing";
-                testResult.innerHTML = "Pinging API health endpoint...";
-            }
-
-            const current = window.API_CONFIG.getBaseUrl();
-            window.API_CONFIG.setBaseUrl(inputUrl.value.trim());
-            const h = await window.API_CONFIG.checkHealth();
-            window.API_CONFIG.setBaseUrl(current); // restore until saved
-
-            testBtn.disabled = false;
-            testBtn.textContent = "Test Ping";
-
-            if (testResult) {
-                if (h.online) {
-                    testResult.className = "test-status-box success";
-                    testResult.innerHTML = `<strong>Connection Successful (${h.latency}ms)</strong><br/>Backend Models: GradientBoosting, RandomForest, LogisticRegression<br/>Database: ${h.data.database ? h.data.database.provider + ' (' + h.data.database.status + ')' : 'Local'}`;
-                } else {
-                    testResult.className = "test-status-box error";
-                    testResult.innerHTML = `<strong>Connection Failed:</strong> ${h.error}<br/><small>Render free web services spin down after 15 mins of inactivity and take ~50s to wake up.</small>`;
-                }
-            }
-        });
     }
 }
 
@@ -237,7 +142,6 @@ function initSliders() {
         }
     });
 
-    // Auto-update interest rate suggestion on loan grade change
     const gradeSelect = document.getElementById("inp-loan-grade");
     const intRateInput = document.getElementById("inp-int-rate");
     const intRateDisplay = document.getElementById("val-int-rate");
@@ -377,7 +281,6 @@ async function runPrediction() {
         const data = await res.json();
         if (data.status === "success") {
             renderPredictionResults(data.result);
-            // Refresh audit history tab if active
             loadAuditHistory();
         }
     } catch (e) {
@@ -390,7 +293,6 @@ async function runPrediction() {
 function renderPredictionResults(result) {
     const { consensus, models, risk_drivers, persisted_to } = result;
 
-    // Consensus FICO Gauge & Verdict
     const ficoEl = document.getElementById("gauge-fico-score");
     const gaugeBar = document.getElementById("gauge-bar");
     const verdictBadge = document.getElementById("diagnosis-badge");
@@ -415,7 +317,6 @@ function renderPredictionResults(result) {
         }
     }
 
-    // FICO Gauge Animation: Circumference = 2 * PI * 68 = ~427
     const maxScore = 850;
     const minScore = 300;
     const scorePct = Math.max(0, Math.min(1, (consensus.credit_score - minScore) / (maxScore - minScore)));
@@ -442,7 +343,6 @@ function renderPredictionResults(result) {
         riskTag.className = `risk-level-tag tag-${consensus.risk_badge}`;
     }
 
-    // Probability Track
     const valApprove = document.getElementById("val-approve-prob");
     const valDefault = document.getElementById("val-default-prob");
     const barApprove = document.getElementById("bar-approve");
@@ -453,7 +353,6 @@ function renderPredictionResults(result) {
     if (barApprove) barApprove.style.width = `${consensus.avg_approve_prob}%`;
     if (barDefault) barDefault.style.width = `${consensus.avg_default_prob}%`;
 
-    // Tri-Model Subcards
     const updateModelCard = (prefix, modelData) => {
         const badge = document.getElementById(`badge-${prefix}`);
         const prob = document.getElementById(`prob-${prefix}`);
@@ -476,7 +375,6 @@ function renderPredictionResults(result) {
     updateModelCard("rf", models.RandomForest);
     updateModelCard("lr", models.LogisticRegression);
 
-    // Risk Drivers List
     const riskContainer = document.getElementById("risk-drivers-container");
     if (riskContainer) {
         riskContainer.innerHTML = "";
@@ -515,7 +413,6 @@ async function loadBenchmarks() {
             renderMetricsTable(data.metrics);
             renderFeatureImportanceChart(data.feature_importances);
 
-            // Update Hero KPIs
             const gb = data.metrics.GradientBoosting;
             if (gb) {
                 const kpiAcc = document.getElementById("kpi-accuracy");
@@ -619,7 +516,6 @@ function renderRocChart(rocData) {
         };
     });
 
-    // Add Chance Diagonal
     datasets.push({
         label: "Chance (AUC: 0.50)",
         data: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
@@ -890,7 +786,7 @@ async function loadAuditHistory() {
                 const timeStr = r.created_at ? new Date(r.created_at).toLocaleTimeString() : "Just now";
                 const isApproved = !r.is_default_predicted;
                 const statusBadge = isApproved ? '<span class="subcard-badge badge-approved">Approved</span>' : '<span class="subcard-badge badge-rejected">Declined</span>';
-                
+
                 tr.innerHTML = `
                     <td><code>#${r.id || (idx + 1)}</code></td>
                     <td>${timeStr}</td>

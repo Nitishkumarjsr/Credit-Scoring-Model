@@ -3,9 +3,26 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/", "destination": "/frontend/index.html" },
-    { "source": "/css/(.*)", "destination": "/frontend/css/$1" },
-    { "source": "/js/(.*)", "destination": "/frontend/js/$1" }
+    {
+      "source": "/api/:path*",
+      "destination": "https://credit-scoring-model-qblr.onrender.com/api/:path*"
+    },
+    {
+      "source": "/health",
+      "destination": "https://credit-scoring-model-qblr.onrender.com/health"
+    },
+    {
+      "source": "/",
+      "destination": "/frontend/index.html"
+    },
+    {
+      "source": "/css/(.*)",
+      "destination": "/frontend/css/$1"
+    },
+    {
+      "source": "/js/(.*)",
+      "destination": "/frontend/js/$1"
+    }
   ],
   "headers": [
     {
@@ -13,8 +30,7 @@
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
+        { "key": "X-XSS-Protection", "value": "1; mode=block" }
       ]
     }
   ]

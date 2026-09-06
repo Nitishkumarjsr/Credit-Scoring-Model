@@ -40,18 +40,14 @@
             </nav>
 
             <div class="nav-actions">
-                <div class="status-pill pill-success" id="pill-render-status" title="Backend Web Service Status">
+                <div class="status-pill pill-success" id="pill-render-status" title="AI Inference Engine Status">
                     <span class="pulse-dot"></span>
-                    <span>Backend API: <strong>Online</strong></span>
+                    <span>AI Engine: <strong>Connecting...</strong></span>
                 </div>
                 <div class="status-pill pill-neutral" id="pill-supabase-status" title="Database connection status">
                     <span class="pulse-dot pulse-amber"></span>
                     <span>Supabase DB: <strong>Checking</strong></span>
                 </div>
-                <button class="btn-cloud-settings" id="btn-open-cloud-settings" title="Configure Cloud Backend API URL">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    Settings
-                </button>
             </div>
         </div>
     </header>
@@ -63,7 +59,7 @@
         <section class="hero-section">
             <div class="hero-content">
                 <div class="hero-tag">
-                    <span class="hero-tag-dot"></span> Live Full-Stack ML Pipeline (Vercel + Render + Supabase)
+                    <span class="hero-tag-dot"></span> Full-Stack Credit Risk Pipeline (Vercel + Render + Supabase)
                 </div>
                 <h1 class="hero-title">
                     Intelligent Credit Risk Intelligence & <br/>
@@ -577,7 +573,7 @@
                 </div>
 
                 <div class="code-block active" id="code-curl">
-curl -X POST "https://credit-scoring-backend.onrender.com/api/predict" \
+curl -X POST "https://your-domain.vercel.app/api/predict" \
   -H "Content-Type: application/json" \
   -d '{
     "applicant": {
@@ -601,7 +597,7 @@ curl -X POST "https://credit-scoring-backend.onrender.com/api/predict" \
                 <div class="code-block" id="code-python">
 import requests
 
-url = "https://credit-scoring-backend.onrender.com/api/predict"
+url = "https://your-domain.vercel.app/api/predict"
 payload = {
     "applicant": {
         "person_age": 32,
@@ -627,7 +623,7 @@ print("Decision:", data["result"]["consensus"]["recommendation"])
                 </div>
 
                 <div class="code-block" id="code-js">
-const response = await fetch("https://credit-scoring-backend.onrender.com/api/predict", {
+const response = await fetch("/api/predict", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
@@ -657,39 +653,6 @@ console.log(result.result);
 
     </main>
 
-    <!-- Cloud Settings Modal -->
-    <div class="modal-overlay" id="cloud-settings-modal" style="display: none;">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3 class="modal-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                    Cloud Backend & Database Configuration
-                </h3>
-                <button class="modal-close-btn" id="btn-close-modal">&times;</button>
-            </div>
-            
-            <p style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.25rem;">
-                Configure the active Render Backend REST API URL for real-time inference and Supabase PostgreSQL syncing.
-            </p>
-
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label for="input-backend-url">Active Backend API URL</label>
-                <input type="text" class="form-input" id="input-backend-url" placeholder="https://credit-scoring-backend.onrender.com" style="font-family: var(--font-mono);">
-            </div>
-
-            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
-                <button class="btn btn-secondary btn-sm" id="btn-reset-api-url">Reset to Render URL</button>
-                <button class="btn btn-secondary btn-sm" id="btn-test-connection">Test Ping</button>
-            </div>
-
-            <div id="connection-test-result" style="display: none;"></div>
-
-            <div class="action-bar" style="margin-top: 1.5rem; padding-top: 1rem;">
-                <button class="btn btn-primary" id="btn-save-api-url">Save & Connect</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
@@ -699,7 +662,7 @@ console.log(result.result);
                 <p class="footer-copy">Architected with Vercel (Frontend), Render (Flask Backend), Supabase (PostgreSQL), and Scikit-Learn.</p>
             </div>
             <div style="text-align: right;">
-                <span style="font-size: 0.8rem; color: var(--text-muted);">Active Backend: <strong id="active-backend-url-label" style="color: #38bdf8;">Auto-detecting...</strong></span>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">System Status: <strong style="color: #10b981;">Operational</strong></span>
             </div>
         </div>
     </footer>
