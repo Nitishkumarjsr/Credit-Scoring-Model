@@ -5,15 +5,15 @@
 
 const API_CONFIG = {
     // Default Render production backend URL (can be customized via UI or localStorage)
-    DEFAULT_RENDER_BACKEND: "https://credit-scoring-backend.onrender.com",
-    
+    DEFAULT_RENDER_BACKEND: "https://credit-scoring-model-qblr.onrender.com",
+
     // Get currently active Backend API URL
     getBaseUrl() {
         const stored = localStorage.getItem("credipulse_api_url");
         if (stored && stored.trim()) {
             return stored.trim().replace(/\/+$/, "");
         }
-        
+
         // Auto-detect local vs production environment
         const hostname = window.location.hostname;
         if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "") {
@@ -22,7 +22,7 @@ const API_CONFIG = {
             }
             return "http://127.0.0.1:5001";
         }
-        
+
         // When deployed on Vercel or other domains
         return this.DEFAULT_RENDER_BACKEND;
     },
@@ -50,7 +50,7 @@ const API_CONFIG = {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 6000);
-            
+
             const res = await fetch(url, {
                 method: "GET",
                 signal: controller.signal,
@@ -58,7 +58,7 @@ const API_CONFIG = {
             });
             clearTimeout(timeoutId);
             const latency = Math.round(performance.now() - t0);
-            
+
             if (res.ok) {
                 const data = await res.json();
                 return {
